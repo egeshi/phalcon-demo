@@ -1,0 +1,24 @@
+{
+  "name": "phalcon-demo",
+  "homepage": "https://github.com/egeshi/phalcon-demo",
+  "authors": [
+    "Antony Repin <lehcode@gmail.com>"
+  ],
+  "description": "A Phalcon framework Demo project for Kirill Jalivets",
+  "main": "",
+  "keywords": [
+    "Phalcon"
+  ],
+  "license": "UNLICENSED",
+  "private": true,
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "bootstrap": "v4.0.0-alpha.6"
+  }
+}
