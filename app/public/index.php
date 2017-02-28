@@ -4,24 +4,31 @@
  * Date: 26.02.2017
  * Time: 14:58
  */
+
 use Phalcon\Di\FactoryDefault;
-use Phalcon\Mvc\Micro as Application;
+use Phalcon\Mvc\Application;
 
+
+defined('APP_ENV') || define('APP_ENV', (getenv('PHALCON_ENV') ? getenv('PHALCON_ENV') : 'dev'));
 define('BASE_PATH', dirname(__DIR__));
-define('APP_PATH', BASE_PATH);
+define("DS", DIRECTORY_SEPARATOR);
+define('APP_PATH', dirname(__DIR__) . DS . 'src');
 
-try{
-    include APP_PATH . '/Demo/DefaultServices.php';
+require_once BASE_PATH . DS . ".." . DS . "vendor" . DS . "autoload.php";
+
+try {
+
+    include APP_PATH . DS . "Demo" . DS . "DefaultServices.php";
     $serviceContainer = new \Demo\DefaultServices(new FactoryDefault());
     $di = $serviceContainer->getServices();
+    include APP_PATH . DS. ".." . DS . "config" . DS . "routing.php";
     $config = $serviceContainer->getConfig();
-    include APP_PATH . '/Demo/Loader.php';
     $app = new Application($di);
-    include APP_PATH . '/config/routing.php';
-    $app->handle();
+    $app->handle()
+        ->getContent();
 
 } catch (\Exception $e) {
-    echo "<h3>Error: ". $e->getMessage() . '</h3>';
-    "<pre>".print_r($e->getTraceAsString())."</pre>";
+    echo "<h3>Error: " . $e->getMessage() . '</h3>';
+    var_dump($e->getTrace());
 }
 
