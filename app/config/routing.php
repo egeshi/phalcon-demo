@@ -5,21 +5,23 @@
  * Time: 1:27
  */
 
-/**
- * Index
- */
-$app->get('/', function () use ($di) {
-    echo $di['view']->render('index');
-});
+$router = $di->getRouter();
 
 /**
- * Add your routes here
+ * Index page
  */
+$router->addGet("/", [
+    "controller" => "Demo\\Controllers\\Index",
+    "action"     => "index",
+]);
+
 
 /**
  * Not found handler
  */
-$app->notFound(function () use($app, $di) {
+/*$app->notFound(function () use($app, $di) {
     $app->response->setStatusCode(404, "Not Found")->sendHeaders();
     echo $di['view']->render('404');
-});
+});*/
+
+$router->handle();
