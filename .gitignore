@@ -5,3 +5,5 @@ vendor/
 bower_components/
 node_modules/
 app/public/assets/
+PC3
+app/public/phpinfo.php
