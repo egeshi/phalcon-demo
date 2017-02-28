@@ -8,6 +8,7 @@
 namespace Demo\Controllers;
 
 use Phalcon\Mvc\Controller;
+use Phalcon\Mvc\View;
 
 /**
  * Class IndexController
@@ -16,9 +17,8 @@ use Phalcon\Mvc\Controller;
  */
 class IndexController extends Controller
 {
-
     public function indexAction()
     {
-        echo "<h1>Hello!</h1>";
+        echo "<h1>Hello there!</h1>";
     }
 }

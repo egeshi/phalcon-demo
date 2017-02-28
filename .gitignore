@@ -7,3 +7,5 @@ node_modules/
 app/public/assets/
 PC3
 app/public/phpinfo.php
+app/cache/*
+git.tar
