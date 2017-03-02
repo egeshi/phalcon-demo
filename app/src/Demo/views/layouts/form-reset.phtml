@@ -1,0 +1,40 @@
+<!-- views/layouts/form-reset.phtml -->
+<div class="card w-38 form">
+    <div class="p-2">
+        <img class="card-img-top" src="/assets/img/reset.png" alt="Add user">
+    </div>
+    <div class="card-block">
+        <h4 class="card-title">Register at Demo</h4>
+        <p class="card-text">A quick example of login form with Phalcon & Bootstrap.</p>
+    </div>
+    <form action="<?php echo $urlService->get("api/auth/reset"); ?>">
+        <ul class="list-group list-group-flush">
+            <li class="list-group-item">
+                <div class="form-group row">
+                    <label for="emailInput" class="col-2 col-form-label"><i class="fa fa-envelope" aria-hidden="true"></i></label>
+                    <div class="col-10">
+                        <input type="email" class="form-control" id="emailInput" name="email" placeholder="e-mail">
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <div class="form-group row">
+                    <label for="emailInput" class="col-2 col-form-label"><i class="fa fa-key" aria-hidden="true"></i></label>
+                    <div class="col-10">
+                        <input type="password" id="passwordInput" name="password" class="form-control" placeholder="password">
+                    </div>
+                </div>
+            </li>
+            <li class="list-group-item">
+                <button type="button" class="btn btn-primary" id="loginButton">
+                    <i class="fa fa-sign-in fa fa-unlock" aria-hidden="true"></i>&nbsp;Register
+                </button>
+            </li>
+        </ul>
+    </form>
+
+    <div class="card-block">
+        <a href="<?php echo $urlService->get("/"); ?>" class="card-link btn btn-secondary btn-sm">Login</a>
+    </div>
+</div>
+<!-- end views/layouts/form-reset.phtml -->

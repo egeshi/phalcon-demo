@@ -7,18 +7,37 @@
 
 namespace Demo\Controllers;
 
-use Phalcon\Mvc\Controller;
+use Demo\Controllers\Core\ModelviewController;
 use Phalcon\Mvc\View;
+use Phalcon\Mvc\Dispatcher as Dispatcher;
 
 /**
  * Class IndexController
  *
  * @package Demo\Controllers
  */
-class IndexController extends Controller
+class IndexController extends ModelviewController
 {
-    public function indexAction()
+    public function loginAction()
     {
-        echo "<h1>Hello there!</h1>";
+        $this->view->setTemplateAfter("form-login");
     }
+
+    /**
+     * Registration page
+     */
+    public function registerAction()
+    {
+        $this->view->setTemplateAfter("form-register");
+    }
+
+    /**
+     * Resetpassword page
+     */
+    public function resetAction(){
+        $this->view->setTemplateAfter("form-reset");
+    }
+
+
+
 }

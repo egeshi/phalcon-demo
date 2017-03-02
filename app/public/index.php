@@ -7,6 +7,7 @@
 
 use Phalcon\Di\FactoryDefault;
 use Phalcon\Mvc\Application;
+use Demo\Services;
 
 
 defined('APP_ENV') || define('APP_ENV', (getenv('PHALCON_ENV') ? getenv('PHALCON_ENV') : 'dev'));
@@ -18,14 +19,11 @@ require_once BASE_PATH . DS . ".." . DS . "vendor" . DS . "autoload.php";
 
 try {
 
-    include APP_PATH . DS . "Demo" . DS . "DefaultServices.php";
-    $serviceContainer = new \Demo\DefaultServices(new FactoryDefault());
+    $serviceContainer = new Services(new FactoryDefault());
     $di = $serviceContainer->getServices();
-    include APP_PATH . DS. ".." . DS . "config" . DS . "routing.php";
     $config = $serviceContainer->getConfig();
     $app = new Application($di);
-    $app->handle()
-        ->getContent();
+    $app->handle()->getContent();
 
 } catch (\Exception $e) {
     echo "<h3>Error: " . $e->getMessage() . '</h3>';
