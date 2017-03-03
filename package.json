@@ -20,7 +20,7 @@
   },
   "homepage": "https://github.com/egeshi/phalcon-demo#readme",
   "dependencies": {
-
+    "deferred": "^0.7.5"
   },
   "devDependencies": {
     "gulp": "^3.9.1",

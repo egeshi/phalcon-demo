@@ -8,6 +8,7 @@ var gulp = require("gulp");
 var concat = require("gulp-concat");
 var util = require('gulp-util');
 var sass = require('gulp-sass');
+var deferred = require("deferred");
 
 
 var config = {
@@ -111,9 +112,10 @@ gulp.task('js:dev', function () {
 });
 
 /**
- * Default task
+ * Default build
  */
-gulp.task('default', function () {
+
+gulp.task('build', function () {
 	gulp.start('concat:js:vendor');
 	gulp.start('concat:css:vendor');
 	gulp.start('sass:vendor');
@@ -122,6 +124,13 @@ gulp.task('default', function () {
 	gulp.start('copy:icons:fa');
 	gulp.start('copy:images');
 });
+
+/**
+ * Completes sequence, depends on and therefore run after "build" task
+ */
+gulp.task('default', ['build'], function(){
+	process.exit();
+})
 
 gulp.watch( [
 	config.assetsDir + '/sass/*',
