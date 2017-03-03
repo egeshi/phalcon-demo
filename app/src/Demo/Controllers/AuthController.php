@@ -7,8 +7,9 @@
 
 namespace Demo\Controllers;
 
-use Demo\Exception\ApplicationException;
 use Demo\Controllers\Core\ApiController;
+use Demo\Exception\ApplicationException;
+use Demo\Controllers\Core\ModelviewController;
 use Phalcon\Mvc\View;
 use Demo\Models\User;
 
@@ -16,78 +17,75 @@ use Demo\Models\User;
  * Class AuthController
  * @package Demo\Controllers
  */
-class AuthController extends ApiController
+class AuthController extends ModelviewController
 {
-
-    protected $email;
-
-    protected $password;
-
-    protected $token;
-
-    /**
-     * Listener
-     * @param \Phalcon\Mvc\Dispatcher $dispatcher
-     * @return bool
-     */
-    /*public function beforeExecuteRoute(\Phalcon\Mvc\Dispatcher $dispatcher)
-    {
-        parent::beforeExecuteRoute($dispatcher);
-    }*/
-
     /**
      * Login response
      */
-    public function loginAction(){
+    public function loginAction()
+    {
 
-        $this->email    = $this->request->getPost("email");
-        $this->password = $this->request->getPost("password");
+        if ($this->dispatcher->wasForwarded()){
+            // Forwarded from ApiController::create()
+            $user = $this->session->get("user");
+            $email = $user->getEmail();
+            $password = $user->getPassword();
+            $token = $user->getToken();
+        } else {
 
-        $sha = sha1($this->password);
-        $user = User::findFirst( [ "(email = :email:) AND password = :password:",
-                "bind" => [
-                    "email"    => $this->email,
-                    "password" => $sha,
+            $email = $this->request->getPost("email");
+            $password = $this->request->getPost("password");
+
+            $sha = sha1($password);
+            $user = User::findFirst(["(email = :email:) AND password = :password:",
+                    "bind" => [
+                        "email" => $email,
+                        "password" => $sha,
+                    ]
                 ]
-            ]
-        );
+            );
 
-        if ($user) {
-            $this->_registerSession($user);
+            $token = $this->request->getHeader("Authorization");
+        }
 
-            $this->setJsonData($user)
-                ->setResponseStatus()
-                ->send()
-            ;
+        if (!$user->getId()) {
+            $this->response->setStatusCode(401, "Not Authorized")
+                ->send();
             return;
         }
 
-        $this->jsonError(401, "Not Authorized");
+        if ($token && $user->getToken() === $token) {
+            $this->dispatcher->forward(
+                [
+                    "controller" => "Demo\\Controllers\\Index",
+                    "action" => "inner",
+                ]
+            );
+        }
+
+        // Tokens do not match
+        $now = new \DateTime();
+        $user->setToken(sha1($now->format(\DateTime::W3C)));
+        $this->session->set("user", $user);
+
+        $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
+
+        $this->response->setJsonContent([
+            "success" => true,
+            "data" => $user
+        ])
+            ->setHeader("Authorization", $user->getToken())
+            ->send();
 
     }
 
     /**
      * Reset password resonse
      */
-    public function resetAction(){
+    public function resetAction()
+    {
 
         $this->setJsonData([])
             ->send();
-    }
-
-    /**
-     * Register session
-     *
-     * @param User $user
-     */
-    private function _registerSession(User $user)
-    {
-        $this->session->set(
-            "auth",
-            [
-                "id"   => $user->id,
-                "name" => $user->name,
-            ]
-        );
     }
 }

@@ -8,7 +8,6 @@
 namespace Demo\Controllers\Core;
 
 use Demo\Exception\ApplicationException;
-use JMS\Serializer\Handler\ArrayCollectionHandler;
 use Phalcon\Mvc\Controller;
 use Phalcon\Mvc\View;
 
@@ -34,6 +33,9 @@ abstract class ApiController extends Controller
     public function initialize()
     {
         $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
+        $this->response->setHeader("Access-Control-Allow-Methods", "POST, GET, PUT, DELETE, OPTIONS");
+        $this->response->setHeader("Access-Control-Allow-Origin", "*");
+        $this->response->setHeader("Access-Control-Allow-Headers", "origin, content-type, accept, authorization");
         $this->response->setHeader("Content-Type", "application/json");
         $this->jsonData = new \stdClass();
     }
@@ -98,7 +100,7 @@ abstract class ApiController extends Controller
             $data['errors'][$idx]['message'] = $err->getMessage();
         }
 
-        $this->response->setContent($this->serializer->serialize($data, 'json'))
+        $this->response->setJsonCOntent($data)
             ->setStatusCode($statusCode, $message)
             ->send();
         return false;
@@ -133,12 +135,12 @@ abstract class ApiController extends Controller
     }
 
     /**
-     * @param string $text
+     * @param bool $success
      * @return $this
      */
-    protected function setResponseStatus($text = null)
+    protected function setResponseStatus($success)
     {
-        $this->jsonData->status = $text;
+        $this->jsonData->success = $success;
 
         return $this;
     }

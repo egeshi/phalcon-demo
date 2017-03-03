@@ -105,7 +105,7 @@ class User extends Model
      */
     public function afterFetch()
     {
-        $this->password = null;
+        $this->password = "********";
     }
 
     /**
@@ -165,7 +165,12 @@ class User extends Model
         return $this;
     }
 
-
-
+    /**
+     * @return string
+     */
+    public function getToken()
+    {
+        return $this->token;
+    }
     
 }

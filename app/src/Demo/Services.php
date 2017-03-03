@@ -20,7 +20,6 @@ use Phalcon\Mvc\Router;
 use Demo\Plugins\JsonResponsePlugin;
 use Phalcon\Mvc\Dispatcher;
 use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
-use JMS\Serializer\SerializerBuilder as Serializer;
 
 /**
  * Class DefaultServices
@@ -61,9 +60,8 @@ class Services
             ->setView()
             ->setSession()
             ->setModelsMetadata()
-            ->setDispatcherListeners()
-            ->setRoutes()
-            ->setSerializer();
+            ->setDispatcher()
+            ->setRoutes();
     }
 
     /**
@@ -81,6 +79,8 @@ class Services
             }
             return new ConfigIni(APP_PATH . "/../" . self::APP_CONFIG);
         }
+
+        $this->di->set("config", $this->config, true);
 
         return $this->config;
 
@@ -243,6 +243,11 @@ class Services
         return $this;
     }
 
+    /**
+     * Import and populate routes from config
+     *
+     * @return $this
+     */
     private function setRoutes()
     {
 
@@ -253,11 +258,16 @@ class Services
             $router = new Router(false);
 
             foreach ($routesConfig as $uri => $routeData) {
-                $method = 'add' . ucfirst(strtolower($routeData->method));
-                $router->$method($uri, [
-                    "controller" => $routeData->controller,
-                    "action" => $routeData->action,
-                ]);
+
+                $methods = explode(",", $routeData->method);
+
+                foreach ($methods as $m){
+                    $method = 'add' . ucfirst(strtolower($m));
+                    $router->$method($uri, [
+                        "controller" => $routeData->controller,
+                        "action" => $routeData->action,
+                    ]);
+                }
             }
 
             $router->notFound([
@@ -275,28 +285,26 @@ class Services
     /**
      *
      */
-    private function setDispatcherListeners()
+    private function setDispatcher()
     {
 
-        $this->di->set("dispatcher", function () {
+        $dispatcher = new Dispatcher();
 
-            $em = new EventsManager();
+        $em = new EventsManager();
 
-            $em->attach("dispatch:beforeExecuteRoute", new \Demo\Plugins\JsonResponsePlugin());
-            $em->attach("dispatch:beforeExecuteRoute", new \Demo\Plugins\SecurityPlugin());
+        $em->attach("dispatch:beforeExecuteRoute", new \Demo\Plugins\JsonResponsePlugin());
+        $em->attach("dispatch:beforeExecuteRoute", new \Demo\Plugins\SecurityPlugin());
 
-            $dispatcher = new Dispatcher();
-            $dispatcher->setEventsManager($em);
+        $dispatcher->setEventsManager($em);
 
-            return $dispatcher;
-        });
+        $this->di->set("dispatcher", $dispatcher);
 
         $em = $this->di->getShared("eventsManager");
 
         $em->attach('view:afterRender', function (Event $event, $view) {
-            // poor workaround for possible render() method of \Phalcon\Mvc\View
-            // which results in rendering blank page
-            // needs to be investigated deeper
+            // poor workaround for possible bug in render() method
+            // of \Phalcon\Mvc\View which results in rendering blank page
+            // needs to be investigated in depth
             $event->stop();
             exit();
         });
@@ -304,14 +312,5 @@ class Services
         return $this;
 
     }
-
-    private function setSerializer()
-    {
-        $this->di->set("serializer", function(){
-            return Serializer::create()->build();
-        },
-        true);
-    }
-
 
 }
