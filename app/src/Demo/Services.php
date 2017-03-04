@@ -17,9 +17,9 @@ use Phalcon\Session\Adapter\Redis as SessionAdapterRedis;
 use Phalcon\Session\Adapter\Files as SessionAdapterFiles;
 use Phalcon\Config\Adapter\Ini as ConfigIni;
 use Phalcon\Mvc\Router;
-use Demo\Plugins\JsonResponsePlugin;
 use Phalcon\Mvc\Dispatcher;
-use Phalcon\Mvc\Model\Metadata\Memory as MetaDataAdapter;
+use Phalcon\Acl\Adapter\Memory as AclList;
+use Demo\AccessControl;
 
 /**
  * Class DefaultServices
@@ -54,13 +54,15 @@ class Services
         $this->routes = new ConfigIni(APP_PATH . "/../config/routes.ini");
 
         $this
-            ->setUrlResolver()
+            ->setConfig()
+            ->setSession()
             ->setDb()
+            ->setModelsMetadata()
+            ->setAcl()
+            ->setDispatcher()
+            ->setUrlResolver()
             ->setFlash()
             ->setView()
-            ->setSession()
-            ->setModelsMetadata()
-            ->setDispatcher()
             ->setRoutes();
     }
 
@@ -94,6 +96,16 @@ class Services
     public function getServices()
     {
         return $this->di;
+    }
+
+    /**
+     * Define config service
+     */
+    private function setConfig()
+    {
+        $this->di->set("config", $this->config);
+
+        return $this;
     }
 
     /**
@@ -192,7 +204,7 @@ class Services
     {
 
         $this->di->setShared("modelsMetadata", function () {
-            return new MetaDataAdapter();
+            return new \Phalcon\Mvc\Model\Metadata\Memory();
         });
 
         return $this;
@@ -261,7 +273,7 @@ class Services
 
                 $methods = explode(",", $routeData->method);
 
-                foreach ($methods as $m){
+                foreach ($methods as $m) {
                     $method = 'add' . ucfirst(strtolower($m));
                     $router->$method($uri, [
                         "controller" => $routeData->controller,
@@ -299,6 +311,15 @@ class Services
 
         $this->di->set("dispatcher", $dispatcher);
 
+        $em->attach("acl:beforeCheckAccess", function (Event $event, $acl) {
+            $this->di->get("session")->set("acl", [
+                "role" => $acl->getActiveRole(),
+                "resource" => $acl->getActiveResource(),
+                "access" => $acl->getActiveAccess(),
+            ]);
+        }
+        );
+
         $em = $this->di->getShared("eventsManager");
 
         $em->attach('view:afterRender', function (Event $event, $view) {
@@ -311,6 +332,16 @@ class Services
 
         return $this;
 
+    }
+
+    /**
+     * Configure ACLs
+     */
+    private function setAcl()
+    {
+        $this->di->set("acl", new AccessControl(), true);
+
+        return $this;
     }
 
 }

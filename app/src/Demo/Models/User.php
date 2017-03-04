@@ -7,22 +7,17 @@
 
 namespace Demo\Models;
 
-use Demo\Exception\ApplicationException;
-use Phalcon\Forms\Element\Date;
 use Phalcon\Mvc\Model;
-use Demo\Models\Traits\TimestampableEntity;
-use JMS\Serializer\Annotation;
 
 /**
  * Class User
  * @package Demo\Models
- * @ExclusionPolicy("none")
  *
  */
 class User extends Model
 {
     
-    use TimestampableEntity;
+    use \Demo\Models\Traits\TimestampableEntity;
     
     /**
      * Primary key
@@ -42,7 +37,6 @@ class User extends Model
      * User password
      *
      * @var string
-     * @Exclude
      */
     private $password;
 
@@ -74,7 +68,7 @@ class User extends Model
     public function initialize()
     {
         $this->setSource("users");
-        $this->hasMany("id", "UserRole", "user_id");
+        $this->hasOne("id", "UserRole", "user_id");
     }
 
     /**
@@ -172,5 +166,6 @@ class User extends Model
     {
         return $this->token;
     }
+    
     
 }

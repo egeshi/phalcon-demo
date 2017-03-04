@@ -1,3 +1,5 @@
+"use strict";
+
 /**
  * XHR request module
  * @type {{send}}
@@ -5,8 +7,8 @@
 var xhr = (function (url) {
 
 	/**
-	 * Request parameters
-	 * @type {{url: *, method: string, data: null, dataType: string, type: string, error: _params.error, success: _params.success, set: _params.set, get: _params.get}}
+	 *
+	 * @type {{url: *, method: string, data: string, dataType: string, type: string, error: function, success: function, set: function, get:function, form: jQuery.fn, outputTo: jQuery.fn, modalId: string}}
 	 * @private
 	 */
 	var _params = {
@@ -16,57 +18,82 @@ var xhr = (function (url) {
 		dataType: "json",
 		type: "api",
 		/**
-		 *
-		 * @param jqXHR
+		 * @param jqXHR Object
 		 */
 		error: function (jqXHR) {
-			console.log(arguments);
-			console.error(jqXHR);
+			$_def.resolve(jqXHR);
 		},
 		/**
-		 *
-		 * @param response
+		 * @param response Object
 		 */
 		success: function (response) {
 			console.info(response);
 		},
 		/**
-		 *
-		 * @param attr
-		 * @param val
+		 * @param attr String
+		 * @param val mixed
 		 */
 		set: function (attr, val) {
 			this[attr] = val;
 		},
 		/**
 		 *
-		 * @param attr
+		 * @param attr String
 		 * @returns {*}
 		 */
 		get: function (attr) {
 			return this[attr];
 		},
-		element: null
+		form: null,
+		outputTo: null, //jQuery.fn
+		callback: null //function
 	};
 
 	/**
+	 * User credentials container
+	 */
+	var _credentials;
+
+	var $_def = $.Deferred();
+
+	/**
 	 * Make single request or sequence
+	 *
 	 * @private
 	 */
 	var _request = function () {
 
+		_params.set("data", _params.get("form").serialize());
+
 		$.ajax(_params).then(function (response, textStatus) {
 
-			console.log(typeof response);
+			if (_params.get("method") == "OPTIONS") {
+				if (typeof response === 'object' && response.length === 0) {
 
-			if (typeof response === 'object' && response.length === 0) {
-				_params.set("data", _params.get("element").serialize());
-				_params.set("method", "POST");
-				$.ajax(_params);
+					_params.set("data", _params.get("form").serialize());
+					_params.set("method", "POST");
+
+					$.ajax(_params).then(function () {
+						$_def.resolve(arguments);
+					});
+
+				}
 			}
+
+			$_def.resolve({
+				data: arguments[0].data,
+				textStatus: arguments[1],
+				jqXHR: arguments[2]
+			});
+
 		});
 	};
 
+	/**
+	 * Set request method
+	 *
+	 * @private
+	 */
 	var _setMethod = function () {
 		if (_params['type'] === "post") {
 			_params.set("method", "POST");
@@ -76,13 +103,10 @@ var xhr = (function (url) {
 		}
 	}
 
-	var getMethod = function () {
-
-	}
-
 	return {
 		/**
 		 * Class facade
+		 *
 		 * @param args
 		 */
 		send: function (args) {
@@ -90,9 +114,14 @@ var xhr = (function (url) {
 			for (var p in args) {
 				_params.set(p, args[p]);
 			}
-			
+
 			_setMethod();
+
+			//var $def = $.Deferred();
+
 			_request();
+
+			return $_def.promise();
 
 		}
 	}
