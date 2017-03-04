@@ -159,7 +159,7 @@ class Services
             "view",
             function (Event $event, $view) {
                 if ($view->getActiveRenderPath()) {
-                    echo '<pre class="container-fluid"><div class="row"><div class="events col-sm-12">' . $event->getType() . ": " . $view->getActiveRenderPath() . PHP_EOL . "</div></div></pre>";
+                    //echo '<pre class="container-fluid"><div class="row"><div class="events col-sm-12">' . $event->getType() . ": " . $view->getActiveRenderPath() . PHP_EOL . "</div></div></pre>";
                 }
             }
         );

@@ -8,9 +8,8 @@
 3. Set `NODE_ENV` environment variable to `development` value
 4. `$ mv composer.phar composer`
 5. Run `$ ./composer update` to generate autoloader classes, install Bower/NPM dependencies and Phalcon Devtools needed for IDE.
-
-Nginx config
-
+6. Create database and load ACL tables and roles from `config/sq/acl.sql`
+7. You may experience strange issues with routing if running nginx. This config works ;)
 ```
 server {
     listen      80;

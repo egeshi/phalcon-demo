@@ -74,20 +74,23 @@ class AuthController extends ModelviewController
 
         // User found and authenticated by HTTP header
         if ($httpToken && $user->getToken() === $httpToken) {
-            $this->response->setStatusCode(301, "/dashboard")
+            $this->response
+                ->setHeader("Authorization", $user->getToken())
+                ->setJsonContent([
+                    "success" => true,
+                    "data" => ["location" => "/dashboard"],
+                ])
                 ->send();
             return;
         }
 
         $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
 
-        $role = $user->getUserRole();
-
         $this->response
             ->setHeader("Authorization", $user->getToken())
             ->setJsonContent([
                 "success" => true,
-                "data" => ["location" => "/dashboard/" . $role->getRoleName()],
+                "data" => ["location" => "/dashboard"],
             ])
             ->send();
 
@@ -98,8 +101,40 @@ class AuthController extends ModelviewController
      */
     public function resetAction()
     {
+        $this->email = $this->request->getPost("email");
 
-        $this->setJsonData([])
+        $user = User::findFirst("email = '{$this->email}'");
+
+        if (!$user) {
+            $this->response
+                ->setJsonContent([
+                    "success" => false,
+                    "data" => ["message" => "User not found"],
+                ])
+                ->send();
+        }
+
+        $oldPasswd = $user->getPassword();
+        $passwd = uniqid();
+        $user->update([
+            "password" => sha1($passwd),
+        ]);
+
+        $this->response
+            ->setJsonContent([
+                "success" => true,
+                "data" => ["message" => "Password was changed from '$oldPasswd' to '$passwd'. Save it somewhere."],
+            ])
             ->send();
+
+
+    }
+
+    /**
+     * TODO: Add logout
+     */
+    public function logoutAction()
+    {
+
     }
 }

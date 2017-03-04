@@ -34,6 +34,8 @@ class IndexController extends ModelviewController
         if ($this->isAllowed("guest", "Index", "register")) {
             $this->view->setTemplateAfter("form-register");
         }
+
+        $this->view->pick("errors/403");
     }
 
     /**
@@ -41,10 +43,13 @@ class IndexController extends ModelviewController
      */
     public function resetAction()
     {
-        if ($this->isAllowed("staff", "Users", "reset") ||
-            $this->isAllowed("cutomer", "Users", "reset")) {
+        if ($this->isAllowed("staff", "Index", "reset") ||
+            $this->isAllowed("cutomer", "Index", "reset")
+        ) {
             $this->view->setTemplateAfter("form-reset");
         }
+
+        $this->view->pick("errors/403");
     }
 
     /**
@@ -52,8 +57,18 @@ class IndexController extends ModelviewController
      */
     public function dashboardAction()
     {
-        die(__FILE__);
-        $this->view->setTemplateAfter("dashboard");
+        if ($this->isAllowed("staff", "Index", "dashboard") ||
+            $this->isAllowed("customer", "Index", "dashboard")
+        ) {
+            $user = $this->session->get("user");
+            $this->view->setTemplateAfter("dashboard");
+            $this->view->role = $user->getUserRole()->getRole()->name;
+            $this->view->email = $user->getEmail();
+        }
+
+        $this->view->pick("errors/403");
+
+
     }
 
 

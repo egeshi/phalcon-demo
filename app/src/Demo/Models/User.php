@@ -9,6 +9,7 @@ namespace Demo\Models;
 
 use Phalcon\Mvc\Model;
 use Demo\Models\UserRole;
+use Demo\Exception\ApplicationException;
 
 /**
  * Class User
@@ -203,11 +204,11 @@ class User extends Model
         $userRole = $this->getUserRole();
         //$db = $this->getDI()->get("db");
         //$sql = "SELECT `name` FROM `roles` WHERE `id` = ? LIMIT 1";
-        $role = UserRole::findFirst("name = '{$userRole->getRoleName()}'");
-        $result = $db->query($sql, [$userRole->getRoleId()]);
-        $result->setFetchMode(\Phalcon\Db::FETCH_NUM);
+        //$role = UserRole::findFirst($userRole->id);
+        //$result = $db->query($sql, [$userRole->getRoleId()]);
+        //$result->setFetchMode(\Phalcon\Db::FETCH_NUM);
 
-        $roleName= $result->fetch()['id'];
+        $roleName= $userRole->getRole()->name;
         if (!$roleName) {
             throw new ApplicationException("Role '$roleName' not found", 500);
         }

@@ -37,6 +37,15 @@ var xhr = (function (url) {
 					}).show();
 					break;
 
+				case 401:
+					dialog.attach($('body'), {
+						id: "xhrForbiddenModal",
+						headerText: "Error",
+						bodyHtml: "<p>Not Authorized</p>"
+					}).show();
+					break;
+					break;
+
 				case 200:
 				case 403:
 					var json = jqXHR.responseJSON;
@@ -84,6 +93,15 @@ var xhr = (function (url) {
 
 				if(response.data.hasOwnProperty("location")){
 					window.location.href = response.data.location;
+				}
+
+				if(response.data.hasOwnProperty("message")){
+					dialog.attach($('body'), {
+						id: "xhrSuccessModal",
+						headerText: "Success!",
+						bodyHtml: "<p>" + response.data.message + "</p>"
+					}).show();
+					return;
 				}
 
 			}

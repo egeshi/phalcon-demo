@@ -32,11 +32,6 @@ class UserRole extends Model
     protected $user_id;
 
     /**
-     * @var string
-     */
-    private $roleName;
-
-    /**
      *
      */
     public function initialize()
@@ -82,6 +77,11 @@ class UserRole extends Model
         return $this->id;
     }
 
+    /**
+     * @param string $roleName
+     * @return $this
+     * @throws ApplicationException
+     */
     public function setRole($roleName)
     {
 
@@ -94,29 +94,22 @@ class UserRole extends Model
             throw new ApplicationException("Role '$roleName' not found", 500);
         }
         $this->setRoleId((int)$roleId);
-        $this->setRoleName($roleName);
 
         return $this;
     }
 
     /**
-     * @return string
+     * @return Model\ResultsetInterface
      */
-    public function getRoleName()
-    {
-        return $this->roleName;
+    public function getRole(){
+        return $this->getRelated("Demo\\Models\\Role");
     }
 
     /**
-     * @param $roleName
-     * @return $this
+     * @return Model\ResultsetInterface
      */
-    public function setRoleName($roleName)
-    {
-        $this->roleName = $roleName;
-
-        return $this;
+    public function getUser(){
+        return $this->getRelated("Demo\\Models\\User");
     }
-
 
 }
