@@ -6,6 +6,7 @@
 
 var gulp = require("gulp");
 var concat = require("gulp-concat");
+var sourcemaps = require('gulp-sourcemaps');
 var util = require('gulp-util');
 var sass = require('gulp-sass');
 var deferred = require("deferred");
@@ -101,12 +102,15 @@ gulp.task('sass:dev', function () {
 gulp.task('js:dev', function () {
 
 	var appJs = [
+		config.assetsDir + "/js/dialog.js",
 		config.assetsDir + "/js/xhr.js",
 		config.assetsDir + "/js/app.js"
 	];
 
 	return gulp.src(appJs)
+			.pipe(sourcemaps.init())
 			.pipe(concat('app.js'))
+			.pipe(sourcemaps.write())
 			.pipe(gulp.dest(config.pub + "/" + config.jsDest));
 
 });

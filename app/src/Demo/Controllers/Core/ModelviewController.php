@@ -16,19 +16,26 @@ use Phalcon\Mvc\Controller;
 class ModelviewController extends Controller
 {
 
+    use \Demo\Controllers\Traits\AclController;
+
     /**
      * Add common variables and assets to layout
      */
-    public function initialize(){
+    public function initialize()
+    {
         $this->setAppAssets();
         $this->setTitle();
-        $this->view->urlService = $this->getDi()->get("url");
+
+        $this->view->urlService = $this->di->get("url");
+
+        $this->userRole = $this->session->get("user")->role_name;
     }
-    
+
     /**
      * Add assets to the view
      */
-    public function setAppAssets(){
+    public function setAppAssets()
+    {
         $this->assets->addCss("assets/css/app.css");
         $this->assets->addJs("assets/js/app.js");
     }
@@ -36,15 +43,15 @@ class ModelviewController extends Controller
     /**
      * Set view title
      */
-    public function setTitle($title=null){
+    public function setTitle($title = null)
+    {
 
         $this->view->title = "Phalcon Demo Project";
 
-        if (!is_null($title)){
+        if (!is_null($title)) {
             $this->view->title = $title;
         }
     }
-    
 
 
 }

@@ -19,6 +19,8 @@ use Phalcon\Mvc\View;
 abstract class ApiController extends Controller
 {
 
+    use \Demo\Controllers\Traits\AclController;
+
     const STATUS_SUCCESS = "success";
     const STATUS_ERROR = "error";
 

@@ -18,6 +18,9 @@ use Phalcon\Mvc\Dispatcher as Dispatcher;
  */
 class IndexController extends ModelviewController
 {
+    /**
+     * Login page
+     */
     public function loginAction()
     {
         $this->view->setTemplateAfter("form-login");
@@ -28,16 +31,30 @@ class IndexController extends ModelviewController
      */
     public function registerAction()
     {
-        $this->view->setTemplateAfter("form-register");
+        if ($this->isAllowed("guest", "Index", "register")) {
+            $this->view->setTemplateAfter("form-register");
+        }
     }
 
     /**
-     * Resetpassword page
+     * Reset password page
      */
-    public function resetAction(){
-        $this->view->setTemplateAfter("form-reset");
+    public function resetAction()
+    {
+        if ($this->isAllowed("staff", "Users", "reset") ||
+            $this->isAllowed("cutomer", "Users", "reset")) {
+            $this->view->setTemplateAfter("form-reset");
+        }
     }
 
+    /**
+     * Logged-in an authorized users only
+     */
+    public function dashboardAction()
+    {
+        die(__FILE__);
+        $this->view->setTemplateAfter("dashboard");
+    }
 
 
 }

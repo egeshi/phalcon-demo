@@ -19,68 +19,82 @@ use Demo\Models\User;
  */
 class AuthController extends ModelviewController
 {
+
+    /**
+     * @var string
+     */
+    private $email;
+
+    /**
+     * @var string
+     */
+    private $password;
+
+    /**
+     * @var string
+     */
+    private $token;
+
     /**
      * Login response
      */
     public function loginAction()
     {
 
-        if ($this->dispatcher->wasForwarded()){
-            // Forwarded from ApiController::create()
+        if ($this->dispatcher->wasForwarded()) {
+            // Forwarded from UserController::create()
             $user = $this->session->get("user");
-            $email = $user->getEmail();
-            $password = $user->getPassword();
-            $token = $user->getToken();
+            $this->email = $user->getEmail();
+            $this->password = $user->getPassword();
+            $this->token = $user->getToken();
         } else {
 
-            $email = $this->request->getPost("email");
-            $password = $this->request->getPost("password");
+            $this->email = $this->request->getPost("email");
+            $this->password = $this->request->getPost("password");
 
-            $sha = sha1($password);
+            $sha = sha1($this->password);
             $user = User::findFirst(["(email = :email:) AND password = :password:",
                     "bind" => [
-                        "email" => $email,
+                        "email" => $this->email,
                         "password" => $sha,
                     ]
                 ]
             );
 
-            $token = $this->request->getHeader("Authorization");
+            $httpToken = $this->request->getHeader("Authorization");
         }
 
-        if (!$user->getId()) {
+        if ($user->id > 0) {
+            $this->acl->setUserId($user->id);
+        } else {
             $this->response->setStatusCode(401, "Not Authorized")
                 ->send();
             return;
         }
 
-        if ($token && $user->getToken() === $token) {
-            $this->dispatcher->forward(
-                [
-                    "controller" => "Demo\\Controllers\\Index",
-                    "action" => "inner",
-                ]
-            );
+        // User found and authenticated by HTTP header
+        if ($httpToken && $user->getToken() === $httpToken) {
+            $this->response->setStatusCode(301, "/dashboard")
+                ->send();
+            return;
         }
 
-        // Tokens do not match
-        $now = new \DateTime();
-        $user->setToken(sha1($now->format(\DateTime::W3C)));
         $this->session->set("user", $user);
 
         $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
 
-        $this->response->setJsonContent([
-            "success" => true,
-            "data" => $user
-        ])
+        $this->response
             ->setHeader("Authorization", $user->getToken())
+            ->setJsonContent([
+                "success" => true,
+                "data" => [ "location" => "/dashboard" ],
+            ])
             ->send();
 
     }
 
     /**
-     * Reset password resonse
+     * Reset password response
      */
     public function resetAction()
     {

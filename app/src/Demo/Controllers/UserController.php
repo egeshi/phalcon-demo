@@ -18,7 +18,6 @@ use Phalcon\Mvc\Controller\BindModelInterface;
  */
 class UserController extends ApiController implements BindModelInterface
 {
-
     /**
      * @var string
      */
@@ -103,7 +102,7 @@ class UserController extends ApiController implements BindModelInterface
 
     /**
      * Get model name associated with controller
-     * 
+     *
      * @return mixed
      */
     public static function getModelName()

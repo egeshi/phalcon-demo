@@ -10,7 +10,7 @@ use Phalcon\Mvc\Application;
 use Demo\Services;
 
 
-defined('APP_ENV') || define('APP_ENV', (getenv('PHALCON_ENV') ? getenv('PHALCON_ENV') : 'dev'));
+defined('APP_ENV') || define('APP_ENV', (getenv('PHALCON_ENV') ? getenv('PHALCON_ENV') : 'development'));
 define('BASE_PATH', dirname(__DIR__));
 define("DS", DIRECTORY_SEPARATOR);
 define('APP_PATH', dirname(__DIR__) . DS . 'src');
