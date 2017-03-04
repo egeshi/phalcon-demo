@@ -85,14 +85,11 @@ class AuthController extends ModelviewController
 
         $this->response
             ->setHeader("Authorization", $user->getToken())
-            ->setHeader("Location", "/dashboard")
-            ->setStatusCode(302)
+            ->setJsonContent([
+                "success" => true,
+                "data" => [ "location" => "/dashboard" ],
+            ])
             ->send();
-
-        /*$this->dispatcher->forward([
-            "controller" => "Demo\\Controllers\\Index",
-            "action" => "dashboard"
-        ]);*/
 
     }
 

@@ -17,6 +17,10 @@ var xhr = (function (url) {
 		data: null,
 		dataType: "json",
 		type: "api",
+		form: null,
+		outputTo: null, //jQuery.fn
+		callback: null, //function
+		token: null,
 		/**
 		 * @param jqXHR Object
 		 */
@@ -28,6 +32,11 @@ var xhr = (function (url) {
 		 */
 		success: function (response) {
 			console.info(response);
+			$_def.resolve({
+				data: arguments[0].data,
+				textStatus: arguments[1],
+				jqXHR: arguments[2]
+			})
 		},
 		/**
 		 * @param attr String
@@ -44,9 +53,11 @@ var xhr = (function (url) {
 		get: function (attr) {
 			return this[attr];
 		},
-		form: null,
-		outputTo: null, //jQuery.fn
-		callback: null //function
+		beforeSend: function(request){
+			if(_params.get("token")){
+				request.setRequestHeader("Authorization", _params.get("token"));
+			}
+		}
 	};
 
 	/**
@@ -74,18 +85,15 @@ var xhr = (function (url) {
 					_params.set("method", "POST");
 
 					$.ajax(_params).then(function () {
-						$_def.resolve(arguments);
+						$_def.resolve({
+							data: arguments[0].data,
+							textStatus: arguments[1],
+							jqXHR: arguments[2]
+						});
 					});
 
 				}
 			}
-
-			$_def.resolve({
-				data: arguments[0].data,
-				textStatus: arguments[1],
-				jqXHR: arguments[2]
-			});
-
 		});
 	};
 

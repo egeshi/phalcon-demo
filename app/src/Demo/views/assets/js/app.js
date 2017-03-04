@@ -20,9 +20,14 @@ $("#loginButton").click(function () {
 		dialogId: dialogId,
 		outputTo: $('#alertsContainer'),
 	}).then(function (resolved) {
-		switch (resolved.status) {
+		switch (resolved.jqXHR.status) {
+			case 200:
+				if(resolved.data.hasOwnProperty("location")){
+					window.location.href = resolved.data.location;
+				}
+				break;
 			case 301:
-				//debugger;
+				debugger;
 				break;
 			case 401:
 				var type = "warning";
@@ -30,7 +35,7 @@ $("#loginButton").click(function () {
 				_showModal("You are not registered", type, modalId, "Wrong credentials");
 				break;
 			default:
-				console.error(resolved);
+				console.debug(resolved);
 		}
 	});
 

@@ -52,6 +52,7 @@ class IndexController extends ModelviewController
      */
     public function dashboardAction()
     {
+        die(__FILE__);
         $this->view->setTemplateAfter("dashboard");
     }
 
