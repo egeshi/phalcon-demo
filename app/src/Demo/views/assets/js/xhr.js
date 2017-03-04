@@ -25,15 +25,72 @@ var xhr = (function (url) {
 		 * @param jqXHR Object
 		 */
 		error: function (jqXHR) {
-			$_def.resolve(jqXHR);
+
+			switch (jqXHR.status) {
+
+				case 500:
+					console.error(jqXHR.statusText);
+					dialog.attach($('body'), {
+						id: "xhrSeverErrorModal",
+						headerText: "Error",
+						bodyHtml: "<p>" + jqXHR.statusText + "</p>"
+					}).show();
+					break;
+
+				case 200:
+				case 403:
+					var json = jqXHR.responseJSON;
+					var messages = "";
+
+					for (var p in json.data) {
+						messages += p + ": " + json.data[p];
+					}
+
+					dialog.attach($('body'), {
+						id: "xhrErrorModal",
+						headerText: "Error",
+						bodyHtml: "<p>" + messages + "</p>"
+					}).show();
+					break;
+
+				default:
+					console.info(jqXHR);
+			}
+
+
 		},
 		/**
 		 * @param response Object
 		 */
-		success: function (response) {
-			console.info(response);
+		success: function () {
+
+			var response = arguments[0];
+
+			if (response.hasOwnProperty("success")) {
+				if (response.success === false) {
+					var messages = "";
+
+					for (var p in response.data) {
+						messages += p + ": " + response.data[p];
+					}
+
+					dialog.attach($('body'), {
+						id: "xhrErrorModal",
+						headerText: "Error",
+						bodyHtml: "<p>" + messages + "</p>"
+					}).show();
+					return;
+				}
+
+				if(response.data.hasOwnProperty("location")){
+					window.location.href = response.data.location;
+				}
+
+			}
+
 			$_def.resolve({
-				data: arguments[0].data,
+				success: response.success,
+				data: response.data,
 				textStatus: arguments[1],
 				jqXHR: arguments[2]
 			})
@@ -53,8 +110,8 @@ var xhr = (function (url) {
 		get: function (attr) {
 			return this[attr];
 		},
-		beforeSend: function(request){
-			if(_params.get("token")){
+		beforeSend: function (request) {
+			if (_params.get("token")) {
 				request.setRequestHeader("Authorization", _params.get("token"));
 			}
 		}
@@ -84,13 +141,7 @@ var xhr = (function (url) {
 					_params.set("data", _params.get("form").serialize());
 					_params.set("method", "POST");
 
-					$.ajax(_params).then(function () {
-						$_def.resolve({
-							data: arguments[0].data,
-							textStatus: arguments[1],
-							jqXHR: arguments[2]
-						});
-					});
+					$.ajax(_params);
 
 				}
 			}

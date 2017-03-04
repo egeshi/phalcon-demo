@@ -23,14 +23,9 @@ class Role extends Model
     private $id;
 
     /**
-     * @var \Demo\Models\User
+     * @var string
      */
-    private $user_id;
-
-    /**
-     * @var \Demo\Models\Role
-     */
-    private $role_id;
+    private $name;
 
     /**
      *
@@ -38,30 +33,40 @@ class Role extends Model
     public function initialize()
     {
         $this->setSource("roles");
-        $this->hasMany( "id", "UserRole", "role_id" );
+        $this->hasMany("id", "Demo\\Models\\UserRole", "role_id");
     }
 
-    public function getId(){
+    /**
+     * @return int
+     */
+    public function getId()
+    {
         return $this->id;
     }
 
-    public function setRoleId($id){
-        $this->role_id = $id;
-
-        return $this;
+    /**
+     * @param int $id
+     */
+    public function setId($id)
+    {
+        $this->id = $id;
     }
 
-    public function getRoleId(){
-        return $this->role_id;
+    /**
+     * @return string
+     */
+    public function getName()
+    {
+        return $this->name;
     }
 
-    public function setUserId($id){
-        $this->user_id = $id;
-
-        return $this;
+    /**
+     * @param string $name
+     */
+    public function setName($name)
+    {
+        $this->name = $name;
     }
 
-    public function getUser(){
-        return $this->user_id;
-    }
+
 }

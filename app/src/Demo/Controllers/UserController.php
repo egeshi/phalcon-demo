@@ -34,21 +34,42 @@ class UserController extends ApiController implements BindModelInterface
     protected $token;
 
     /**
+     * @var string
+     */
+    protected $role;
+
+    /**
      * Create user [/api/user/create]
      */
     public function createAction()
     {
 
-        if ($this->request->getMethod() == "OPTIONS"){
+        if ($this->request->getMethod() == "OPTIONS") {
             $this->setJsonData([]);
             $this->response->send();
             return;
         }
 
-        if($this->request->getMethod() == "POST"){
+        if ($this->request->getMethod() == "POST") {
+
+            /* TODO: Add validation */
 
             $this->email = $this->request->getPost("email");
             $this->password = $this->request->getPost("password");
+            $this->role = $this->request->getPost("role");
+
+            if (!$this->role) {
+                $this->setJsonData(new \ArrayObject([
+                    success => false,
+                    "data" => [
+                        "validation" => "Role is missing"
+                    ],
+                ]));
+                $this->response
+                    ->setStatusCode(403)
+                    ->send();
+                return;
+            }
 
             $found = User::findFirst(["(email = :email:)",
                     "bind" => ["email" => $this->email]
@@ -58,7 +79,7 @@ class UserController extends ApiController implements BindModelInterface
             if ($found) {
                 $this->setJsonData(new \ArrayObject([
                     success => false,
-                    "message" => "User with that email already exists",
+                    "data" => [ "validation" => "User with that email already exists" ],
                 ]));
                 $this->response->send();
 
@@ -85,14 +106,12 @@ class UserController extends ApiController implements BindModelInterface
                     throw new ApplicationException("User cannot be saved", 500);
                 }
 
-                $this->session->set("user",[
-                    "id" => $user->id,
-                    "email" => $this->email,
-                    "token" => $token,
-                ]);
+                $user->setUserRole($this->role);
+
+                $this->session->set("user", $user);
 
                 $this->dispatcher->forward([
-                    "controller"=> "Demo\\Controllers\\Auth",
+                    "controller" => "Demo\\Controllers\\Auth",
                     "action" => "login"
                 ]);
             }

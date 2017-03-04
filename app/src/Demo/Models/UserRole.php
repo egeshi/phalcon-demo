@@ -7,6 +7,7 @@
 
 namespace Demo\Models;
 
+use Demo\Exception\ApplicationException;
 use Phalcon\Mvc\Model;
 
 /**
@@ -33,14 +34,22 @@ class UserRole extends Model
     /**
      * @var string
      */
-    protected $roleName;
+    private $roleName;
 
     /**
-     * @return mixed
+     *
      */
-    public function getUserId()
+    public function initialize()
     {
-        return $this->user_id;
+        $this->setSource("users_roles");
+
+        $this->belongsTo("user_id", "Demo\\Models\\User", "id", [
+            "foreignKey" => true
+        ]);
+        $this->belongsTo("role_id", "Demo\\Models\\Role", "id", [
+            "foreignKey" => true
+        ]);
+
     }
 
     /**
@@ -54,35 +63,6 @@ class UserRole extends Model
         return $this;
     }
 
-    public function getId()
-    {
-        return $this->id;
-    }
-
-    /**
-     *
-     */
-    public function initialize()
-    {
-        $this->setSource("users");
-
-        $this->belongsTo("user_id", "Demo\\Models\\User", "id", [
-            "foreignKey" => true
-        ]);
-        $this->belongsTo("role_id", "Demo\\Models\\Role", "id", [
-            "foreignKey" => true
-        ]);
-
-    }
-
-    /**
-     * @return mixed
-     */
-    public function getRoleId()
-    {
-        return $this->role_id;
-    }
-
     /**
      * @param $role_id
      * @return $this
@@ -90,6 +70,50 @@ class UserRole extends Model
     public function setRoleId($role_id)
     {
         $this->role_id = $role_id;
+
+        return $this;
+    }
+
+    /**
+     * @return int
+     */
+    public function getId()
+    {
+        return $this->id;
+    }
+
+    public function setRole($roleName)
+    {
+
+        $db = $this->getDI()->get("db");
+        $sql = "SELECT `id` FROM `roles` WHERE `name` = ? LIMIT 1";
+        $result = $db->query($sql, [$roleName]);
+        $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
+        $roleId = $result->fetch()['id'];
+        if (!$roleId) {
+            throw new ApplicationException("Role '$roleName' not found", 500);
+        }
+        $this->setRoleId((int)$roleId);
+        $this->setRoleName($roleName);
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRoleName()
+    {
+        return $this->roleName;
+    }
+
+    /**
+     * @param $roleName
+     * @return $this
+     */
+    public function setRoleName($roleName)
+    {
+        $this->roleName = $roleName;
 
         return $this;
     }

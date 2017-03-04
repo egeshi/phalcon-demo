@@ -52,20 +52,20 @@ class AuthController extends ModelviewController
             $this->email = $this->request->getPost("email");
             $this->password = $this->request->getPost("password");
 
-            $sha = sha1($this->password);
             $user = User::findFirst(["(email = :email:) AND password = :password:",
                     "bind" => [
                         "email" => $this->email,
-                        "password" => $sha,
+                        "password" => sha1($this->password),
                     ]
                 ]
             );
 
             $httpToken = $this->request->getHeader("Authorization");
+            $this->session->set("user", $user);
         }
 
         if ($user->id > 0) {
-            $this->acl->setUserId($user->id);
+            $this->acl->setUserId($user->id); //For future implementation with ModelResource and UserRole
         } else {
             $this->response->setStatusCode(401, "Not Authorized")
                 ->send();
@@ -79,15 +79,15 @@ class AuthController extends ModelviewController
             return;
         }
 
-        $this->session->set("user", $user);
-
         $this->view->setRenderLevel(View::LEVEL_NO_RENDER);
+
+        $role = $user->getUserRole();
 
         $this->response
             ->setHeader("Authorization", $user->getToken())
             ->setJsonContent([
                 "success" => true,
-                "data" => [ "location" => "/dashboard" ],
+                "data" => ["location" => "/dashboard/" . $role->getRoleName()],
             ])
             ->send();
 

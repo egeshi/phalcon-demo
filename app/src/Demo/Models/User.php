@@ -8,6 +8,7 @@
 namespace Demo\Models;
 
 use Phalcon\Mvc\Model;
+use Demo\Models\UserRole;
 
 /**
  * Class User
@@ -16,9 +17,9 @@ use Phalcon\Mvc\Model;
  */
 class User extends Model
 {
-    
+
     use \Demo\Models\Traits\TimestampableEntity;
-    
+
     /**
      * Primary key
      *
@@ -68,13 +69,14 @@ class User extends Model
     public function initialize()
     {
         $this->setSource("users");
-        $this->hasOne("id", "UserRole", "user_id");
+        $this->hasOne("id", "Demo\\Models\\UserRole", "user_id");
     }
 
     /**
      * Perform initialization tasks for every instance created
      */
-    public function onConstruct(){
+    public function onConstruct()
+    {
         $this->setUpdated();
         $this->setCreated();
     }
@@ -82,13 +84,14 @@ class User extends Model
     /**
      * Tasks before entity is saved
      */
-    public function beforeSave(){
+    public function beforeSave()
+    {
 
-        if (is_a($this->created, "DateTime")){
+        if (is_a($this->created, "DateTime")) {
             $this->created = $this->created->format(\DateTime::W3C);
         }
 
-        if (is_a($this->updated, "DateTime")){
+        if (is_a($this->updated, "DateTime")) {
             $this->updated = $this->created->format(\DateTime::W3C);
         }
 
@@ -166,6 +169,54 @@ class User extends Model
     {
         return $this->token;
     }
-    
-    
+
+    /**
+     * @param null $parameters
+     * @return Model\ResultsetInterface
+     */
+    public function getUserRole($parameters = null)
+    {
+        $role = $this->getRelated("Demo\\Models\\UserRole", $parameters);
+        return $role;
+    }
+
+    /**
+     * @param $roleName
+     */
+    public function setUserRole($roleName)
+    {
+
+        $existingRoles = $roles = $this->getDI()->get("acl")->getRoles();
+
+        foreach ($existingRoles as $role) {
+            if ($roleName == $role->getName()) {
+                $userRole = new UserRole();
+                $result = $userRole->setUserId($this->id)
+                    ->setRole($role->getName())
+                    ->save();
+            }
+        }
+    }
+
+    public function getRoleName()
+    {
+        $userRole = $this->getUserRole();
+        //$db = $this->getDI()->get("db");
+        //$sql = "SELECT `name` FROM `roles` WHERE `id` = ? LIMIT 1";
+        $role = UserRole::findFirst("name = '{$userRole->getRoleName()}'");
+        $result = $db->query($sql, [$userRole->getRoleId()]);
+        $result->setFetchMode(\Phalcon\Db::FETCH_NUM);
+
+        $roleName= $result->fetch()['id'];
+        if (!$roleName) {
+            throw new ApplicationException("Role '$roleName' not found", 500);
+        }
+
+    }
+
+    private function setRoleName(){
+        //$this->roleName = ;
+    }
+
+
 }

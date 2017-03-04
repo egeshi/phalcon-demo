@@ -14,12 +14,13 @@ use Phalcon\Acl\Resource;
 use Phalcon\Acl;
 use Phalcon\Acl\Role;
 use Phalcon\Paginator\Adapter\Model;
+use Phalcon\Di\InjectionAwareInterface;
 
 /**
  * Class Acl
  * @package Demo
  */
-class AccessControl
+class AccessControl implements InjectionAwareInterface
 {
 
     /**
@@ -32,6 +33,8 @@ class AccessControl
      */
     private $users;
 
+    private $roles;
+
     /**
      * For future implementation with ModelResource and UserRole
      *
@@ -39,11 +42,15 @@ class AccessControl
      */
     private $userId;
 
+    private $di;
+
     /**
-     * Acl constructor.
+     * AccessControl constructor.
+     * @param \Phalcon\Di\FactoryDefault $di
      */
-    public function __construct()
+    public function __construct(\Phalcon\Di\FactoryDefault $di)
     {
+        $this->di = $di;
         $this->roles = new \stdClass();
         $this->acl = new AclList();
         $this->acl->setDefaultAction(Acl::DENY);
@@ -108,9 +115,15 @@ class AccessControl
      */
     private function setRoles()
     {
-        $this->acl->addRole(new Role("guest", "Guests"));
-        $this->acl->addRole(new Role("staff", "Registered staff"));
-        $this->acl->addRole(new Role("customer", "Registered customers"));
+
+        $sql = "SELECT * FROM `roles`";
+        $db = $this->di->get("db");
+        $result = $db->query($sql);
+        $result->setFetchMode(\Phalcon\Db::FETCH_ASSOC);
+
+        while ($role = $result->fetch()) {
+            $this->acl->addRole(new Role($role['name'], $role['description']));
+        }
 
         return $this;
 
@@ -144,5 +157,27 @@ class AccessControl
         $this->acl->allow("guest", "Index", "login");
 
         return $this;
+    }
+
+    /**
+     * Sets the dependency injector
+     *
+     * @param \Phalcon\DiInterface $dependencyInjector
+     * @return \stdClass
+     */
+    public function setDI(\Phalcon\DiInterface $dependencyInjector)
+    {
+        $this->di = $dependencyInjector;
+        return $this;
+    }
+
+    /**
+     * Returns the internal dependency injector
+     *
+     * @return \Phalcon\DiInterface
+     */
+    public function getDI()
+    {
+        return $this->di;
     }
 }

@@ -22,7 +22,8 @@ $("#loginButton").click(function () {
 	}).then(function (resolved) {
 		switch (resolved.jqXHR.status) {
 			case 200:
-				if(resolved.data.hasOwnProperty("location")){
+				debugger;
+				if(resolved.data && resolved.data.hasOwnProperty("location")){
 					window.location.href = resolved.data.location;
 				}
 				break;
@@ -33,6 +34,9 @@ $("#loginButton").click(function () {
 				var type = "warning";
 				var modalId = type + "Modal";
 				_showModal("You are not registered", type, modalId, "Wrong credentials");
+				break;
+			case 403:
+				debugger;
 				break;
 			default:
 				console.debug(resolved);

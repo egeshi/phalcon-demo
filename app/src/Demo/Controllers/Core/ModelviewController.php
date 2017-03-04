@@ -28,7 +28,7 @@ class ModelviewController extends Controller
 
         $this->view->urlService = $this->di->get("url");
 
-        $this->userRole = $this->session->get("user")->role_name;
+        $this->user = $this->session->get("user");
     }
 
     /**

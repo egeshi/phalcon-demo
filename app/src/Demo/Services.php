@@ -190,6 +190,35 @@ class Services
 
         $connection = new $class($params);
 
+        $em = $this->di->getShared("eventsManager");
+
+        $em->attach(
+            "db:beforeQuery",
+            function (Event $event, $connection) {
+                $sql = $connection->getSQLStatement();
+
+                // Check for malicious words in SQL statements
+                if (preg_match("/DROP|ALTER/i", $sql)) {
+                    // DROP/ALTER operations aren't allowed in the application,
+                    // this must be a SQL injection!
+                    return false;
+                }
+
+                // It's OK
+                return true;
+            }
+        );
+
+        $em->attach(
+            "db:afterQuery",
+            function (Event $event, $connection) {
+                $sql = $connection->getSQLStatement();
+                return true;
+            }
+        );
+
+        $connection->setEventsManager($em);
+
         $this->di->set("db", $connection);
 
         return $this;
@@ -273,6 +302,10 @@ class Services
 
                 $methods = explode(",", $routeData->method);
 
+                if (strstr($uri, ":")) {
+                    $vars = explode(":", $uri);
+                }
+
                 foreach ($methods as $m) {
                     $method = 'add' . ucfirst(strtolower($m));
                     $router->$method($uri, [
@@ -320,6 +353,8 @@ class Services
         }
         );
 
+
+
         $em = $this->di->getShared("eventsManager");
 
         $em->attach('view:afterRender', function (Event $event, $view) {
@@ -339,7 +374,7 @@ class Services
      */
     private function setAcl()
     {
-        $this->di->set("acl", new AccessControl(), true);
+        $this->di->set("acl", new AccessControl($this->di), true);
 
         return $this;
     }
