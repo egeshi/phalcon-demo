@@ -29,6 +29,8 @@
       ],
     "post-install-cmd": [
       "npm install",
+      "sudo npm install -g bower",
+      "sudo npm install -g gulp",
       "bower install"
     ]
   }
