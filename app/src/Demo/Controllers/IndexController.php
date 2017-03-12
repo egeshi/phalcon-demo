@@ -14,6 +14,8 @@ use Phalcon\Mvc\Dispatcher as Dispatcher;
 /**
  * Class IndexController
  *
+ * TODO: ACL should be automatically checked vs controller/action at post-routing stage
+ *
  * @package Demo\Controllers
  */
 class IndexController extends ModelviewController
@@ -33,9 +35,11 @@ class IndexController extends ModelviewController
     {
         if ($this->isAllowed("guest", "Index", "register")) {
             $this->view->setTemplateAfter("form-register");
+        } else {
+            $this->view->pick("errors/403");
         }
 
-        $this->view->pick("errors/403");
+
     }
 
     /**
@@ -47,9 +51,11 @@ class IndexController extends ModelviewController
             $this->isAllowed("cutomer", "Index", "reset")
         ) {
             $this->view->setTemplateAfter("form-reset");
+        } else {
+            $this->view->pick("errors/403");
         }
 
-        $this->view->pick("errors/403");
+
     }
 
     /**
@@ -64,9 +70,9 @@ class IndexController extends ModelviewController
             $this->view->setTemplateAfter("dashboard");
             $this->view->role = $user->getUserRole()->getRole()->name;
             $this->view->email = $user->getEmail();
+        } else {
+            $this->view->pick("errors/403");
         }
-
-        $this->view->pick("errors/403");
 
 
     }

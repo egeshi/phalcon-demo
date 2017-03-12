@@ -60,9 +60,10 @@ class AuthController extends ModelviewController
                 ]
             );
 
-            $httpToken = $this->request->getHeader("Authorization");
             $this->session->set("user", $user);
         }
+
+        $httpToken = $this->request->getHeader("Authorization");
 
         if ($user->id > 0) {
             $this->acl->setUserId($user->id); //For future implementation with ModelResource and UserRole
@@ -105,13 +106,14 @@ class AuthController extends ModelviewController
 
         $user = User::findFirst("email = '{$this->email}'");
 
-        if (!$user) {
+        if (!$user || !($user instanceof User)) {
             $this->response
                 ->setJsonContent([
                     "success" => false,
                     "data" => ["message" => "User not found"],
                 ])
                 ->send();
+            return;
         }
 
         $oldPasswd = $user->getPassword();
@@ -135,6 +137,6 @@ class AuthController extends ModelviewController
      */
     public function logoutAction()
     {
-
+        
     }
 }
