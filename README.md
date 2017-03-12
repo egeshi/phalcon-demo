@@ -1,3 +1,7 @@
+# Description
+
+Project contains several users with pre-defined password `test`. To display the power of GROUP_CONCAT() there is a pre-defined set of users with a list of companies together with company category which company is registered under. User logins are `admin@server.com`, `user1@server.com`, `user_xxx@server.com`, `sqsclub@gmail.com`, `customer1@gmail.com`. Following ACL only staff members can see user companies info also they can only see their info following query restrictions.
+
 # Project Setup
 
 ##### Prerequisites: nginx, git, NPM, composer (optional), redis
@@ -8,7 +12,7 @@
 3. Set `NODE_ENV` environment variable to `development` value
 4. `$ mv composer.phar composer`
 5. Run `$ ./composer update` to generate autoloader classes, install Bower/NPM dependencies and Phalcon Devtools needed for IDE.
-6. Create database and load ACL tables and roles from `config/sq/acl.sql`
+6. Create database and load ACL tables and roles from `config/sql/start.sql`
 7. You may experience strange issues with routing if running nginx. This config works ;)
 ```
 server {

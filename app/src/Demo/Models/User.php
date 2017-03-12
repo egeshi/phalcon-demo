@@ -10,6 +10,7 @@ namespace Demo\Models;
 use Phalcon\Mvc\Model;
 use Demo\Models\UserRole;
 use Demo\Exception\ApplicationException;
+use Phalcon\Mvc\Model\Resultset\Simple as Resultset;
 
 /**
  * Class User
@@ -236,7 +237,30 @@ class User extends Model
 
     }
 
+    /**
+     * @param string $cond
+     * @param null $params
+     * @return Resultset
+     */
+    public function getCompanies($cond, $params = null)
+    {
 
+        $sql = "SELECT u.`id`,
+  u.`email`,
+  c.`name` AS category,
+  GROUP_CONCAT(DISTINCT uc.`name` ORDER BY uc.`name` ASC SEPARATOR ', ') AS companies
+  FROM `users` u
+  LEFT JOIN `users_companies` uc ON uc.`user_id` = u.`id`
+  RIGHT JOIN `categories` c ON uc.`category_id` = c.`id`
+  WHERE u.`id` = :user
+  GROUP BY u.`id`, `category_id`";
+
+        $user = new User();
+
+        return new Resultset(null, $user,
+            $user->getReadConnection()->query($sql, $params));
+
+    }
 
 
 }

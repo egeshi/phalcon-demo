@@ -1,4 +1,9 @@
 #formContainer{
+
+  & > div:first-child{
+    align-items: center;
+  }
+
   .card-img-top{
     display: block;
     max-width:256px;

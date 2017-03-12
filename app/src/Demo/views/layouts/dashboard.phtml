@@ -33,3 +33,18 @@
 
 </div>
 
+<div class="row">
+    <?php if ($role == 'staff'){ ?>
+    <div class="col-sm-12">
+        <?php echo $this->partial("partials/grid", [
+            "data"=>$data,
+            "email" => $email
+        ]) ?>
+    </div>
+    <?php } ?>
+
+    <?php if ($role == 'user'){ ?>
+    <!-- TODO Add company management form -->
+    <?php } ?>
+</div>
+

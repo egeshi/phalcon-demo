@@ -1,0 +1,19 @@
+<!-- views/partials/grid.phtml -->
+<table class="table table-striped">
+    <caption>User's <?php echo $email ?> companies</caption>
+    <thead>
+        <tr>
+            <th>Category</th>
+            <th>Companies</th>
+        </tr>
+    </thead>
+    <tbody>
+    <?php foreach ($data as $item){ ?>
+    <tr>
+        <td><?php echo $item->category ?></td>
+        <td><?php echo $item->companies ?></td>
+    </tr>
+    <?php } ?>
+    </tbody>
+</table>
+<!-- end views/partials/grid.phtml -->

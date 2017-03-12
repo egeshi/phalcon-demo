@@ -64,17 +64,21 @@ class IndexController extends ModelviewController
      */
     public function dashboardAction()
     {
-        if ($this->isAllowed("staff", "Index", "dashboard") ||
-            $this->isAllowed("customer", "Index", "dashboard")
+        if (!$this->isAllowed("staff", "Index", "dashboard") ||
+            !$this->isAllowed("customer", "Index", "dashboard")
         ) {
+            $this->view->pick("errors/403");
+        } else {
             $user = $this->session->get("user");
             $this->view->setTemplateAfter("dashboard");
 
             $this->view->role = $user->getUserRole()->getRole()->name;
             $this->view->email = $user->getEmail();
-        } else {
-            $this->view->pick("errors/403");
+            $data = $user->getCompanies('id = :user', ['user'=>$user->getId()]);
+            $this->view->data = $data;
         }
+
+
 
     }
 

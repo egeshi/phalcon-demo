@@ -132,19 +132,33 @@ class UserController extends ApiController implements BindModelInterface
      *
      * @var int $id
      */
-    protected function editAction()
+    public function editAction()
     {
-        // TODO: Implement editAction() method.
+        if ($this->request->isPut()){
+            $data = $this->request->getPut();
+            
+            foreach ($data as $prop){
+                // TODO Add update
+            }
+        }
+
     }
+    
+    
 
     /**
      * Delete entities
      *
      * @var int $id
      */
-    protected function deleteAction()
+    public function deleteAction()
     {
-        // TODO: Implement deleteAction() method.
+        if ($this->request->isDelete()){
+
+            $data = $this->request->get("id");
+
+            // TODO Add action code and response
+        }
     }
 
     /**
@@ -152,16 +166,26 @@ class UserController extends ApiController implements BindModelInterface
      *
      * @var int $id
      */
-    protected function getAction()
+    public function getAction()
     {
-        // TODO: Implement getAction() method.
+        if ($this->request->isGet()){
+
+            $data = $this->request->get("id");
+
+            // TODO Add action code and response
+        }
     }
 
     /**
      * Get entities list as ArrayCollection
      */
-    protected function collectionAction()
+    public function collectionAction()
     {
-        // TODO: Implement index() method.
+        if ($this->request->isHead()){
+
+            $users = User::find();
+
+            // TODO Add response
+        }
     }
 }
