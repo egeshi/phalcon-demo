@@ -78,7 +78,7 @@ class UserController extends ApiController implements BindModelInterface
 
             if ($found) {
                 $this->setJsonData(new \ArrayObject([
-                    success => false,
+                    "success" => false,
                     "data" => [ "validation" => "User with that email already exists" ],
                 ]));
                 $this->response->send();
