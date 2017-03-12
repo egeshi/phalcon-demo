@@ -24,7 +24,7 @@ class JsonResponsePlugin extends Plugin
      */
     public function beforeExecuteRoute(\Phalcon\Events\Event $event, \Phalcon\Mvc\Dispatcher $dispatcher)
     {
-
+        
         switch ($dispatcher->getControllerName()){
 
             case "Demo\\Controllers\\Auth":

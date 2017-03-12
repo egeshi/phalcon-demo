@@ -8,6 +8,7 @@
 namespace Demo\Controllers;
 
 use Demo\Controllers\Core\ModelviewController;
+use Demo\Models\User;
 use Phalcon\Mvc\View;
 use Phalcon\Mvc\Dispatcher as Dispatcher;
 
@@ -20,6 +21,7 @@ use Phalcon\Mvc\Dispatcher as Dispatcher;
  */
 class IndexController extends ModelviewController
 {
+
     /**
      * Login page
      */
@@ -55,7 +57,6 @@ class IndexController extends ModelviewController
             $this->view->pick("errors/403");
         }
 
-
     }
 
     /**
@@ -68,13 +69,36 @@ class IndexController extends ModelviewController
         ) {
             $user = $this->session->get("user");
             $this->view->setTemplateAfter("dashboard");
+
             $this->view->role = $user->getUserRole()->getRole()->name;
             $this->view->email = $user->getEmail();
         } else {
             $this->view->pick("errors/403");
         }
 
+    }
 
+    /**
+     * Logout user
+     */
+    public function logoutAction()
+    {
+
+        $user = User::findFirst(["token = :token:",
+                "bind" => [
+                    "token" => $this->token
+                ]
+            ]
+        );
+
+        if ($user){
+            $user->deleteToken()
+                ->update();
+        }
+
+        $this->response
+            ->setHeader("Location", "/")
+            ->send();
     }
 
 

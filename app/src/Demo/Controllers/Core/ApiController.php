@@ -105,7 +105,7 @@ abstract class ApiController extends Controller
         $this->response->setJsonCOntent($data)
             ->setStatusCode($statusCode, $message)
             ->send();
-        return false;
+        return;
 
     }
 

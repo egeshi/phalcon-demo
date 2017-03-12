@@ -103,7 +103,7 @@ class User extends Model
      */
     public function afterFetch()
     {
-        $this->password = "********";
+
     }
 
     /**
@@ -139,7 +139,7 @@ class User extends Model
      */
     public function setPassword($pw)
     {
-        $this->password = $pw;
+        $this->password = sha1($pw);
 
         return $this;
     }
@@ -153,12 +153,16 @@ class User extends Model
     }
 
     /**
-     * @param string $token
+     * @param null $token
      * @return $this
      */
-    public function setToken($token)
+    public function setToken($token = null)
     {
-        $this->token = $token;
+        if (!$token) {
+            $this->token = md5(microtime(true));
+        } else {
+            $this->token = $token;
+        }
 
         return $this;
     }
@@ -169,6 +173,18 @@ class User extends Model
     public function getToken()
     {
         return $this->token;
+    }
+
+    /**
+     * Clear user token
+     *
+     * @return $this
+     */
+    public function deleteToken()
+    {
+        $this->token = null;
+
+        return $this;
     }
 
     /**
@@ -183,6 +199,8 @@ class User extends Model
 
     /**
      * @param $roleName
+     * @return bool
+     * @throws ApplicationException
      */
     public function setUserRole($roleName)
     {
@@ -192,32 +210,33 @@ class User extends Model
         foreach ($existingRoles as $role) {
             if ($roleName == $role->getName()) {
                 $userRole = new UserRole();
-                $result = $userRole->setUserId($this->id)
+                $userRole->setUserId($this->id)
                     ->setRole($role->getName())
                     ->save();
+
+                return true;
             }
         }
     }
 
+    /**
+     * @throws ApplicationException
+     */
     public function getRoleName()
     {
         $userRole = $this->getUserRole();
-        //$db = $this->getDI()->get("db");
-        //$sql = "SELECT `name` FROM `roles` WHERE `id` = ? LIMIT 1";
-        //$role = UserRole::findFirst($userRole->id);
-        //$result = $db->query($sql, [$userRole->getRoleId()]);
-        //$result->setFetchMode(\Phalcon\Db::FETCH_NUM);
 
-        $roleName= $userRole->getRole()->name;
+        $roleName = $userRole->getRole()->name;
+
         if (!$roleName) {
             throw new ApplicationException("Role '$roleName' not found", 500);
         }
 
+        return $roleName;
+
     }
 
-    private function setRoleName(){
-        //$this->roleName = ;
-    }
+
 
 
 }

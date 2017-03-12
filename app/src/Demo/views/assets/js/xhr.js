@@ -91,11 +91,11 @@ var xhr = (function (url) {
 					return;
 				}
 
-				if(response.data.hasOwnProperty("location")){
+				if (response.data.hasOwnProperty("location")) {
 					window.location.href = response.data.location;
 				}
 
-				if(response.data.hasOwnProperty("message")){
+				if (response.data.hasOwnProperty("message")) {
 					dialog.attach($('body'), {
 						id: "xhrSuccessModal",
 						headerText: "Success!",
@@ -132,6 +132,7 @@ var xhr = (function (url) {
 			if (_params.get("token")) {
 				request.setRequestHeader("Authorization", _params.get("token"));
 			}
+			// TODO Add application/json content-type header and processing at backend
 		}
 	};
 
@@ -153,16 +154,21 @@ var xhr = (function (url) {
 
 		$.ajax(_params).then(function (response, textStatus) {
 
-			if (_params.get("method") == "OPTIONS") {
-				if (typeof response === 'object' && response.length === 0) {
+			switch (_params.get("method")) {
+				case "OPTIONS":
+					if (typeof response === 'object' && response.length === 0) {
 
-					_params.set("data", _params.get("form").serialize());
-					_params.set("method", "POST");
+						_params.set("data", _params.get("form").serialize());
+						_params.set("method", "POST");
 
-					$.ajax(_params);
+						$.ajax(_params);
 
-				}
+					}
+					break;
+
 			}
+
+
 		});
 	};
 

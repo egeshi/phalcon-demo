@@ -31,11 +31,6 @@ class AuthController extends ModelviewController
     private $password;
 
     /**
-     * @var string
-     */
-    private $token;
-
-    /**
      * Login response
      */
     public function loginAction()
@@ -44,6 +39,13 @@ class AuthController extends ModelviewController
         if ($this->dispatcher->wasForwarded()) {
             // Forwarded from UserController::create()
             $user = $this->session->get("user");
+
+            if (!$user){
+                $this->response->setStatusCode(401, "Not Authorized")
+                    ->send();
+                return;
+            }
+
             $this->email = $user->getEmail();
             $this->password = $user->getPassword();
             $this->token = $user->getToken();
@@ -60,18 +62,22 @@ class AuthController extends ModelviewController
                 ]
             );
 
+            if (!$user){
+                $this->response->setStatusCode(401, "Not Authorized")
+                    ->send();
+                return;
+            }
+            
+            $user->setPassword($this->password)
+                ->setToken()
+                ->update();
+
             $this->session->set("user", $user);
         }
 
         $httpToken = $this->request->getHeader("Authorization");
 
-        if ($user->id > 0) {
-            $this->acl->setUserId($user->id); //For future implementation with ModelResource and UserRole
-        } else {
-            $this->response->setStatusCode(401, "Not Authorized")
-                ->send();
-            return;
-        }
+        $this->acl->setUserId($user->id); //For future implementation with ModelResource and UserRole
 
         // User found and authenticated by HTTP header
         if ($httpToken && $user->getToken() === $httpToken) {
@@ -118,9 +124,9 @@ class AuthController extends ModelviewController
 
         $oldPasswd = $user->getPassword();
         $passwd = uniqid();
-        $user->update([
-            "password" => sha1($passwd),
-        ]);
+        $user->setPassword($passwd);
+        $user->setToken("");
+        $user->update();
 
         $this->response
             ->setJsonContent([
@@ -130,13 +136,5 @@ class AuthController extends ModelviewController
             ->send();
 
 
-    }
-
-    /**
-     * TODO: Add logout
-     */
-    public function logoutAction()
-    {
-        
     }
 }

@@ -59,12 +59,12 @@ class UserController extends ApiController implements BindModelInterface
             $this->role = $this->request->getPost("role");
 
             if (!$this->role) {
-                $this->setJsonData(new \ArrayObject([
-                    success => false,
+                $this->setJsonData([
+                    "success" => false,
                     "data" => [
                         "validation" => "Role is missing"
                     ],
-                ]));
+                ]);
                 $this->response
                     ->setStatusCode(403)
                     ->send();
@@ -79,7 +79,7 @@ class UserController extends ApiController implements BindModelInterface
             if ($found) {
                 $this->setJsonData(new \ArrayObject([
                     "success" => false,
-                    "data" => [ "validation" => "User with that email already exists" ],
+                    "data" => ["validation" => "User with that email already exists"],
                 ]));
                 $this->response->send();
 
@@ -89,17 +89,15 @@ class UserController extends ApiController implements BindModelInterface
                 $token = base64_encode($now->format(\DateTime::W3C));
 
                 $user = new User();
-                $user->setEmail($this->email);
-                $user->setPassword(sha1($this->password));
-                $user->setToken($token);
+                $user->setEmail($this->email)
+                    ->setPassword(sha1($this->password))
+                    ->setToken($token);
 
                 try {
-
-                    $saved = $user->create();
-
-                    if (!$saved) {
+                    if (!$user->create()) {
                         $messages = $user->getMessages();
                         $this->jsonError(404, null, $messages);
+                        return;
                     }
 
                 } catch (\Exception $e) {

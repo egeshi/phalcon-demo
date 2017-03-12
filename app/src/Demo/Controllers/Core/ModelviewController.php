@@ -19,6 +19,16 @@ class ModelviewController extends Controller
     use \Demo\Controllers\Traits\AclController;
 
     /**
+     * @var string
+     */
+    protected $user;
+
+    /**
+     * @var string
+     */
+    protected $token;
+
+    /**
      * Add common variables and assets to layout
      */
     public function initialize()
@@ -29,6 +39,7 @@ class ModelviewController extends Controller
         $this->view->urlService = $this->di->get("url");
 
         $this->user = $this->session->get("user");
+        $this->token = $this->request->getHeader("Authorization");;
     }
 
     /**
@@ -52,6 +63,5 @@ class ModelviewController extends Controller
             $this->view->title = $title;
         }
     }
-
 
 }

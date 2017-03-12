@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
   `name` varchar(50) NOT NULL,
   `description` varchar(255) DEFAULT NULL,
   PRIMARY KEY (`id`)
@@ -48,14 +48,17 @@ DROP TABLE IF EXISTS `users`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `email` varchar(50) NOT NULL,
-  `password` varchar(255) NOT NULL,
-  `token` varchar(255) DEFAULT NULL,
-  `created` datetime NOT NULL,
-  `updated` datetime NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB AUTO_INCREMENT=101 DEFAULT CHARSET=utf8mb4;
+  id int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  email varchar(164) NOT NULL,
+  password varchar(255) NOT NULL,
+  token varchar(128) DEFAULT NULL,
+  created datetime NOT NULL,
+  updated datetime NOT NULL,
+  PRIMARY KEY (id),
+  UNIQUE INDEX UK_users_email (email),
+  UNIQUE INDEX UK_users_id (id),
+  UNIQUE INDEX UK_users_token (token)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -64,6 +67,7 @@ CREATE TABLE `users` (
 
 LOCK TABLES `users` WRITE;
 /*!40000 ALTER TABLE `users` DISABLE KEYS */;
+INSERT INTO `users` VALUES (101,'admin@server.com','ad55cd14cdc0d91d2b249a1afe9a87c66b22ca32','MjAxNy0wMy0wNFQyMToyMDo0OCswMjowMA==','2017-03-04 21:20:48','2017-03-04 21:20:48'),(102,'user1@server.com','2741f5d8a2fdb12a3ebed4a6e006eabafffee22a','MjAxNy0wMy0wNFQyMTozOTo0MyswMjowMA==','2017-03-04 21:39:43','2017-03-04 21:39:43'),(103,'user_xxx@server.com','5098ea3d758f078875d440683db80ed7a7ee99a1','MjAxNy0wMy0xMlQwMTowMzoxNiswMjowMA==','2017-03-12 01:03:16','2017-03-12 01:03:16');
 /*!40000 ALTER TABLE `users` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -75,15 +79,15 @@ DROP TABLE IF EXISTS `users_roles`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
 /*!40101 SET character_set_client = utf8 */;
 CREATE TABLE `users_roles` (
-  `id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `role_id` int(11) NOT NULL,
+  `id` int(11) UNSIGNED NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) UNSIGNED NOT NULL,
+  `role_id` int(11) UNSIGNED NOT NULL,
   PRIMARY KEY (`id`),
   KEY `FK_users_groups_role_id` (`role_id`),
   KEY `FK_users_groups_user_id` (`user_id`),
   CONSTRAINT `FK_users_groups_user_id` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE NO ACTION,
   CONSTRAINT `FK_users_groups_role_id` FOREIGN KEY (`role_id`) REFERENCES `roles` (`id`) ON DELETE NO ACTION
-) ENGINE=InnoDB AUTO_INCREMENT=29 DEFAULT CHARSET=utf8mb4;
+) ENGINE=InnoDB AUTO_INCREMENT=32 DEFAULT CHARSET=utf8mb4;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -92,6 +96,7 @@ CREATE TABLE `users_roles` (
 
 LOCK TABLES `users_roles` WRITE;
 /*!40000 ALTER TABLE `users_roles` DISABLE KEYS */;
+INSERT INTO `users_roles` VALUES (29,101,2),(30,102,2),(31,103,2);
 /*!40000 ALTER TABLE `users_roles` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -104,4 +109,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2017-03-04 20:56:47
+-- Dump completed on 2017-03-12  2:44:15
